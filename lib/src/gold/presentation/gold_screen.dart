@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gold_stream_app/src/gold/data/fake_gold_api.dart';
 import 'package:gold_stream_app/src/gold/presentation/widgets/gold_header.dart';
 import 'package:intl/intl.dart';
 
@@ -26,12 +27,34 @@ class GoldScreen extends StatelessWidget {
               SizedBox(height: 20),
               // TODO: Verwende einen StreamBuilder, um den Goldpreis live anzuzeigen
               // statt des konstanten Platzhalters
-              Text(
+              StreamBuilder<double>(
+                stream: getGoldPriceStream(),
+                initialData: goldPrice,
+                builder: (context, snapshot) {
+                  if (snapshot.hasError) {
+                    return Text(
+                      'Fehler: ${snapshot.error}',
+                      style: TextStyle(color: Colors.red),
+                    );
+                  }
+                  if (!snapshot.hasData) {
+                    return const CircularProgressIndicator();
+                  }
+                  final price = snapshot.data!;
+                  return Text(
+                    NumberFormat.simpleCurrency(locale: 'de_DE').format(price),
+                    style: Theme.of(context).textTheme.headlineLarge!.copyWith(
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  );
+                },
+              ),
+              /* Text(
                 NumberFormat.simpleCurrency(locale: 'de_DE').format(goldPrice),
                 style: Theme.of(context).textTheme.headlineLarge!.copyWith(
                   color: Theme.of(context).colorScheme.primary,
                 ),
-              ),
+              ), */
             ],
           ),
         ),
